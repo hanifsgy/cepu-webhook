@@ -1,5 +1,5 @@
 {
-  "originHash" : "3d9badb8c7eecd1c65be34fa185a62ccadf46ee4fc6dc720fbca60e86979ffbd",
+  "originHash" : "66470364fbfdcf98fa42ba3e82d88a4e541a3fc908c3dd4a757537fe3c49dd61",
   "pins" : [
     {
       "identity" : "swift-atomics",
@@ -24,8 +24,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server/swift-aws-lambda-runtime.git",
       "state" : {
-        "revision" : "8d9f44b7838750b103ad2ad49055e8333d719e8a",
-        "version" : "1.0.0-alpha.2"
+        "revision" : "de730b240df25897c4b5b68889c178c994fd6817",
+        "version" : "1.0.0-alpha.1"
+      }
+    },
+    {
+      "identity" : "swift-backtrace",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-server/swift-backtrace.git",
+      "state" : {
+        "revision" : "7277ee0e0378d27465b304c668d8e914192d986f",
+        "version" : "1.3.5"
       }
     },
     {
