@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:webhook-xcode-cloud}",
+            "name": "Debug cepu-webhook",
+            "program": "${workspaceFolder:webhook-xcode-cloud}/.build/debug/cepu-webhook",
+            "preLaunchTask": "swift: Build Debug cepu-webhook"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:webhook-xcode-cloud}",
+            "name": "Release cepu-webhook",
+            "program": "${workspaceFolder:webhook-xcode-cloud}/.build/release/cepu-webhook",
+            "preLaunchTask": "swift: Build Release cepu-webhook"
+        }
+    ]
+}
