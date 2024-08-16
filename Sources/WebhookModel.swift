@@ -163,35 +163,3 @@ enum CompletionStatus: String, Decodable {
     case canceled = "CANCELED"
     case skipped = "SKIPPED"
 }
-
-struct APIGatewayEvent: Decodable {
-    let version: String
-    let routeKey: String
-    let rawPath: String
-    let rawQueryString: String
-    let headers: [String: String]
-    let requestContext: RequestContext
-    let body: String
-    let isBase64Encoded: Bool
-
-    struct RequestContext: Decodable {
-        let accountId: String
-        let apiId: String
-        let domainName: String
-        let domainPrefix: String
-        let http: HTTPInfo
-        let requestId: String
-        let routeKey: String
-        let stage: String
-        let time: String
-        let timeEpoch: Int64
-
-        struct HTTPInfo: Decodable {
-            let method: String
-            let path: String
-            let `protocol`: String
-            let sourceIp: String
-            let userAgent: String
-        }
-    }
-}

@@ -1,0 +1,90 @@
+{
+  "webhook" : {
+    "id" : "33958189-15c7-4ce7-a53a-c0b71173300b",
+    "name" : "cepu-webhook",
+    "url" : "https://7o80j8obp2.execute-api.ap-southeast-1.amazonaws.com"
+  },
+  "metadata" : {
+    "type" : "metadata",
+    "attributes" : {
+      "createdDate" : "2024-08-16T09:50:04.094695376Z",
+      "eventType" : "BUILD_CREATED"
+    }
+  },
+  "app" : {
+    "id" : "1184800207",
+    "type" : "apps"
+  },
+  "ciWorkflow" : {
+    "id" : "c4fcccc1-5cf5-465d-9cb6-9d8a08955ca4",
+    "type" : "ciWorkflows",
+    "attributes" : {
+      "name" : "Sanitize iOS Apps",
+      "description" : "Sanitizing Stockbit iOS Application Through Xcode Cloud. Require when someone updating some pod, we need to resync with Xcode Cloud Pod Cache",
+      "lastModifiedDate" : "2024-08-14T12:27:29.988Z",
+      "isEnabled" : true,
+      "isLockedForEditing" : false
+    }
+  },
+  "ciProduct" : {
+    "id" : "BE009D81-ABB9-4E62-9470-F99D8EE00ED9",
+    "type" : "ciProducts",
+    "attributes" : {
+      "name" : "Stockbit",
+      "createdDate" : "2022-06-18T13:31:25.846Z",
+      "productType" : "APP"
+    }
+  },
+  "ciBuildRun" : {
+    "id" : "e997b162-faf9-4f47-9d65-2ad16f728c9b",
+    "type" : "ciBuildRuns",
+    "attributes" : {
+      "number" : 34106,
+      "createdDate" : "2024-08-16T09:49:57.714Z",
+      "sourceCommit" : {
+        "commitSha" : "e9618d8bd45f2f9e9f6f16b1cee2e122b1fa8604",
+        "author" : {
+          "displayName" : "M. Rizky Hasibuan"
+        },
+        "committer" : {
+          "displayName" : "yonathan wijaya"
+        },
+        "htmlUrl" : "https://gitlab.com/stockbitgroup/stockbit/mobile/ios/main-app/commit/e9618d8bd45f2f9e9f6f16b1cee2e122b1fa8604"
+      },
+      "isPullRequestBuild" : false,
+      "executionProgress" : "PENDING"
+    }
+  },
+  "ciBuildActions" : [ ],
+  "scmProvider" : {
+    "type" : "scmProviders",
+    "attributes" : {
+      "scmProviderType" : {
+        "scmProviderType" : "GITLAB_CLOUD",
+        "displayName" : "GitLab",
+        "isOnPremise" : false
+      },
+      "endpoint" : "https://gitlab.com"
+    }
+  },
+  "scmRepository" : {
+    "id" : "fa7d95c8-11e4-4b7f-acf3-c5ec188d7d57",
+    "type" : "scmRepositories",
+    "attributes" : {
+      "httpCloneUrl" : "https://gitlab.com/stockbitgroup/stockbit/mobile/ios/main-app.git",
+      "sshCloneUrl" : "ssh://git@gitlab.com/stockbitgroup/stockbit/mobile/ios/main-app.git",
+      "ownerName" : "stockbitgroup/stockbit/mobile/ios",
+      "repositoryName" : "main-app"
+    }
+  },
+  "scmGitReference" : {
+    "id" : "b977aa08-c385-4ff9-b4a9-416219a189f2",
+    "type" : "scmGitReferences",
+    "attributes" : {
+      "name" : "development",
+      "canonicalName" : "refs/heads/development",
+      "isDeleted" : false,
+      "kind" : "BRANCH"
+    }
+  }
+}

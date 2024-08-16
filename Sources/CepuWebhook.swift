@@ -13,39 +13,24 @@ struct CepuWebhook: SimpleLambdaHandler {
     }
     
     func handle(_ request: APIGatewayV2Request, context: LambdaContext) async throws -> APIGatewayV2Response {
-        print("Received request: \(request)")
-        
-        guard let body = request.body else {
-            print("Error: Empty request body")
+        /// need adapt finished date not found in any payload
+        guard let body = request.body,
+            let bodyData: Data = body.data(using: .utf8),
+            let payload = try? decoder.decode(WebhookPayload.self, from: bodyData),
+            payload.metadata.attributes.eventType == .completed else {
             return .init(statusCode: .badRequest, body: "Empty request body")
         }
-        
-        print("Raw body: \(body)")
-        guard let bodyData = body.data(using: .utf8) else {
-            print("Error: Could not convert body to data")
-            return .init(statusCode: .badRequest, body: "Invalid request body encoding")
-        }
-        
-        do {
-            // Try to parse as generic JSON first
-            let payload = try decoder.decode(WebhookPayload.self, from: bodyData)
-            let response = formatPayloadResponse(payload)
-            print("Formatted response: \(response)")
-            
-            return .init(statusCode: .ok, body: response)
-        } catch {
-            print("Error decoding payload: \(error)")
-            if let decodingError = error as? DecodingError {
-                print("Decoding error details: \(decodingError)")
-            }
-            return .init(statusCode: .badRequest, body: "Could not parse the request content: \(error.localizedDescription)")
-        }
+
+        let response = formatPayloadResponse(payload)
+        print("Formatted response: \(response)")
+        return .init(statusCode: .ok, body: response)
     }
 
     private func formatPayloadResponse(_ payload: WebhookPayload) -> String {
         """
         Xcode Cloud Build Summary:
         - Workflow: \(payload.ciWorkflow.attributes.name)
+        - CI Workflow Id: \(payload.ciWorkflow.id)
         - Repository: \(payload.scmRepository.attributes.repositoryName)
         - Branch/Tag: \(payload.scmGitReference.attributes.name) (\(payload.scmGitReference.attributes.kind))
         - Status: \(payload.ciBuildRun.attributes.completionStatus)

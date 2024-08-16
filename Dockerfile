@@ -1,26 +1,44 @@
-FROM --platform=linux/amd64 public.ecr.aws/docker/library/swift:5.9.1-amazonlinux2 as builder
-ARG TARGET_NAME
+# Build image
+FROM --platform=linux/amd64 swift:5.7-amazonlinux2 as builder
+ARG TARGET_NAME=cepu-webhook
 
-RUN yum -y install git jq tar zip openssl-devel
 WORKDIR /build-lambda
-RUN mkdir -p /Sources/$TARGET_NAME/
-ADD /Sources/ ./Sources/
+
+# Install necessary dependencies
+RUN yum -y install \
+    git \
+    jq \
+    tar \
+    zip \
+    openssl-devel
+
+# Copy Swift package manifest
 COPY Package.swift .
-RUN cd /build-lambda && swift package clean && swift build -c release
+
+# Copy source code
+COPY Sources/ Sources/
+
+# Build the Lambda function with static linking
+RUN swift build --product $TARGET_NAME -c release -Xswiftc -static-stdlib
 
 # Copy Swift runtime libraries
 RUN mkdir -p /lambda-package/lib
 RUN cp /usr/lib/swift/linux/*.so /lambda-package/lib/
-RUN cp /build-lambda/.build/release/$TARGET_NAME /lambda-package/
 
-# image deplpoyed to AWS Lambda with your compiled executable
+# Copy built executable
+RUN cp /build-lambda/.build/release/$TARGET_NAME /lambda-package/bootstrap
+
+# Runtime image
 FROM public.ecr.aws/lambda/provided:al2-x86_64
-ARG TARGET_NAME
+ARG TARGET_NAME=cepu-webhook
 
-RUN mkdir -p /var/task/lib/
-COPY --from=builder /lambda-package/lib/ /var/task/lib/
-COPY --from=builder /lambda-package/$TARGET_NAME /var/task/bootstrap
+# Copy Swift runtime libraries and bootstrap executable
+COPY --from=builder /lambda-package/lib/* /var/task/lib/
+COPY --from=builder /lambda-package/bootstrap /var/task/
 
+# Set permissions and working directory
 RUN chmod 755 /var/task/bootstrap
 WORKDIR /var/task
-CMD ["/var/task/bootstrap"]
+
+# Set the CMD to your handler
+CMD ["bootstrap"]
