@@ -1,5 +1,5 @@
 # Build image
-FROM --platform=linux/amd64 swift:5.7-amazonlinux2 as builder
+FROM --platform=linux/arm64 swift:5.7-amazonlinux2 AS builder
 ARG TARGET_NAME=cepu-webhook
 
 WORKDIR /build-lambda

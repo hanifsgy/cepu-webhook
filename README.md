@@ -14,17 +14,26 @@ The goals in this repository are:
 
 ## Local Development
 
-- to build on Docker image local
+- to build Docker Images
 ```sh
 docker build -t cepu-webhook .
 ```
-- to run local lambda server
+- to rebuild Docker Images
+```sh
+docker-compose build
+```
+- to run local lambda server (without docker)
 
 ```sh
-swift run --env LOCAL_LAMBDA_SERVER_ENABLED=true
+swift run --env LOCAL_LAMBDA_SERVER_ENABLED=true 
 ```
 
 - to test the lambda functions, using RIE [link](https://github.com/aws/aws-lambda-runtime-interface-emulator#test-an-image-with-rie-included-in-the-image)
+
+```sh
+docker run --rm -v ~/.aws-lambda-rie:/aws-lambda -p 9000:8080 \
+    --entrypoint /aws-lambda/aws-lambda-rie cepu-webhook:latest /var/task/bootstrap
+```
 
 - Invoke the lambda function, with the JSON files as an input 
 
@@ -73,3 +82,4 @@ aws lambda update-function-code --function-name cepu-webhook --zip-file fileb://
 - https://github.com/aws/aws-lambda-runtime-interface-emulator 
 - https://developer.apple.com/documentation/appstoreconnectapi/read_xcode_cloud_artifact_information
 - https://github.com/apple/appstoreconnect-swift-sdk    
+- https://www.polpiella.dev/xcode-cloud-webhooks

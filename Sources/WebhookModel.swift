@@ -65,12 +65,12 @@ struct WebhookPayload: Decodable {
         struct CIBuildRunAttributes: Decodable {
             let number: Int
             let createdDate: String
-            let startedDate: String
-            let finishedDate: String
+            let startedDate: String? // optionals only finished, and non pending jobs
+            let finishedDate: String? // optionals only finished jobs
             let sourceCommit: SourceCommit
             let isPullRequestBuild: Bool
             let executionProgress: String
-            let completionStatus: String
+            let completionStatus: String? // optionals only finished jobs   
 
             struct SourceCommit: Decodable {
                 let commitSha: String
@@ -97,11 +97,11 @@ struct WebhookPayload: Decodable {
         struct CIBuildActionAttributes: Decodable {
             let name: String
             let actionType: String
-            let startedDate: String
-            let finishedDate: String
+            let startedDate: String? // optionals only finished, and non pending jobs   
+            let finishedDate: String? // optionals only finished jobs
             let issueCounts: IssueCounts
             let executionProgress: String
-            let completionStatus: String
+            let completionStatus: String? // optionals only finished jobs   
             let isRequiredToPass: Bool
 
             struct IssueCounts: Decodable {
@@ -168,4 +168,5 @@ enum BuildMetaDataStatus: String, Decodable {
     case completed = "BUILD_COMPLETED"
     case started = "BUILD_STARTED"
     case pending = "BUILD_CREATED"
+    case unrecognized = "UNRECOGNIZED"
 }
