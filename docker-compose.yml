@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  lambda:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cepu-webhook:latest
+    environment:
+      - AWS_LAMBDA_RUNTIME_API=http://host.docker.internal:9000
+    ports:
+      - "9000:8080"

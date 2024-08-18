@@ -40,10 +40,4 @@ struct CepuWebhook: SimpleLambdaHandler {
         - Author: \(payload.ciBuildRun.attributes.sourceCommit.author.displayName)
         """
     }
-
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter.string(from: date)
-    }
 }

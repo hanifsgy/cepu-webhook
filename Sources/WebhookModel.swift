@@ -22,7 +22,7 @@ struct WebhookPayload: Decodable {
 
         struct MetadataAttributes: Decodable {
             let createdDate: String
-            let eventType: String
+            let eventType: BuildMetaDataStatus
         }
     }
 
@@ -162,4 +162,10 @@ enum CompletionStatus: String, Decodable {
     case errored = "ERRORED"
     case canceled = "CANCELED"
     case skipped = "SKIPPED"
+}
+
+enum BuildMetaDataStatus: String, Decodable {
+    case completed = "BUILD_COMPLETED"
+    case started = "BUILD_STARTED"
+    case pending = "BUILD_CREATED"
 }

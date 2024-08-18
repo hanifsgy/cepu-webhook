@@ -19,7 +19,7 @@ COPY Package.swift .
 COPY Sources/ Sources/
 
 # Build the Lambda function with static linking
-RUN swift build --product $TARGET_NAME -c release -Xswiftc -static-stdlib
+RUN swift build --product "${TARGET_NAME}" -c release -Xswiftc -static-stdlib
 
 # Copy Swift runtime libraries
 RUN mkdir -p /lambda-package/lib
@@ -29,7 +29,7 @@ RUN cp /usr/lib/swift/linux/*.so /lambda-package/lib/
 RUN cp /build-lambda/.build/release/$TARGET_NAME /lambda-package/bootstrap
 
 # Runtime image
-FROM public.ecr.aws/lambda/provided:al2-x86_64
+FROM --platform=linux/arm64 public.ecr.aws/lambda/provided:al2-arm64
 ARG TARGET_NAME=cepu-webhook
 
 # Copy Swift runtime libraries and bootstrap executable
