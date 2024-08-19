@@ -38,9 +38,9 @@ struct CepuWebhook: SimpleLambdaHandler {
             /// - Artifact (Adjustable based on Environment Variable)
             let gitlabTriggerPayload = GitlabTriggerPayload(
                 variables: [
-                    "XCODE_CLOUD_WORKFLOW_ID": payload.ciWorkflow.id,
-                    "XCODE_CLOUD_WORKFLOW_NAME": payload.ciWorkflow.attributes.name,
-                    "XCODE_CLOUD_ARTIFACT": Environment.artifact
+                    "XCODE_CLOUD_CI_WORKFLOW_ID": payload.ciWorkflow.id,
+                    "XCODE_CLOUD_CI_WORKFLOW_NAME": payload.ciWorkflow.attributes.name,
+                    "XCODE_CLOUD_CI_ARTIFACT": Environment.artifact
                 ],
                 token: Environment.gitLabToken,
                 ref: payload.scmGitReference.attributes.name
@@ -85,28 +85,46 @@ struct CepuWebhook: SimpleLambdaHandler {
         let httpClient = HTTPClient(eventLoopGroupProvider: .singleton)
         defer { try? httpClient.syncShutdown() }
         
-        let url = "\(Environment.gitLabApiUrl)/projects/\(Environment.gitLabProjectId)/trigger/pipeline"
-        print("Requesting URL: \(url)")
+        var components = URLComponents(string: GitlabAPI.baseURL)!
+        components.queryItems = [URLQueryItem(name: "ref", value: payload.ref)]
         
-        var request = HTTPClientRequest(url: url)
+        guard let url = components.url else {
+            throw NSError(domain: "URLError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to construct URL"])
+        }
+        
+        var request = HTTPClientRequest(url: url.absoluteString)
         request.method = .POST
-        
+        request.headers.add(name: "PRIVATE-TOKEN", value: payload.token)
         request.headers.add(name: "Content-Type", value: "application/json")
-        let jsonData = try JSONEncoder().encode(payload)
+        
+        let variables = payload.variables.map { ["key": $0.key, "value": $0.value] }
+        let body: [String: Any] = ["variables": variables]
+        let jsonData = try JSONSerialization.data(withJSONObject: body)
         request.body = .bytes(jsonData)
+        
+        print("GitLab API URL: \(url)")
+        print("Request method: \(request.method)")
+        print("Request headers: \(request.headers)")
+        print("Request body: \(String(data: jsonData, encoding: .utf8) ?? "Unable to print body")")
         
         do {
             let response = try await httpClient.execute(request, timeout: .seconds(30))
-            print("Response status: \(response.status)")
             
-            guard response.status == .created else {
-                throw NSError(domain: "GitLabAPIError", code: Int(response.status.code), userInfo: [NSLocalizedDescriptionKey: "Failed to trigger GitLab CI job. Status: \(response.status)"])
+            print("Response status: \(response.status)")
+            print("Response headers: \(response.headers)")
+            
+            let bodyBytes = try await response.body.collect(upTo: 1024 * 1024) // 1 MB max
+            let responseBody = String(buffer: bodyBytes)
+            print("Response body: \(responseBody)")
+            
+            guard (200...299).contains(response.status.code) else {
+                throw NSError(domain: "GitLabAPIError", code: Int(response.status.code),
+                              userInfo: [NSLocalizedDescriptionKey: "Failed to trigger GitLab CI job. Status: \(response.status)"])
             }
             
-            let bodyBytes = try await response.body.collect(upTo: 1024 * 1024)
-            return String(buffer: bodyBytes)
+            return responseBody
         } catch {
-            print("Error: \(error)")
+            print("Error: \(error.localizedDescription)")
             throw error
         }
     }

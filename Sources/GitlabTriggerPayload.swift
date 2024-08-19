@@ -12,7 +12,7 @@ enum GitlabAPIAction {
 
 /// https://docs.gitlab.com/ee/ci/triggers/#use-curl
 struct GitlabAPI {
-    static let baseURL = "\(Environment.gitLabApiUrl)/projects/\(Environment.gitLabProjectId)/trigger/pipeline"
+    static let baseURL = "\(Environment.gitLabApiUrl)/projects/\(Environment.gitLabProjectId)/pipeline"
 }
 
 enum Environment {

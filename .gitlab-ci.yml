@@ -1,0 +1,18 @@
+stages:
+  - receive
+
+variables:
+  - XCODE_CLOUD_CI_WORKFLOW_NAME: ""
+  - XCODE_CLOUD_CI_WORKFLOW_ID: ""
+  - XCODE_CLOUD_CI_ARTIFACT: ""
+
+build_job:
+  stage: receive
+  script:
+    - echo "Building the project"
+    - | 
+      echo "XCODE_CLOUD_CI_WORKFLOW_NAME: $XCODE_CLOUD_CI_WORKFLOW_NAME"
+      echo "XCODE_CLOUD_CI_WORKFLOW_ID: $XCODE_CLOUD_CI_WORKFLOW_ID"
+      echo "XCODE_CLOUD_CI_ARTIFACT: $XCODE_CLOUD_CI_ARTIFACT"
+  only:
+    - triggers
