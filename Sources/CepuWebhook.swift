@@ -1,5 +1,6 @@
 import AWSLambdaRuntime
 import AWSLambdaEvents
+import AsyncHTTPClient
 import Foundation
 
 @main
@@ -29,8 +30,27 @@ struct CepuWebhook: SimpleLambdaHandler {
             
             let response = formatPayloadResponse(payload)
             print("Formatted response: \(response)")
-            // TODO: Need to rnd related gitlab, and appstore connect api integrations
-            return .init(statusCode: .ok, body: response)
+            
+            /// Prepare Payload for Gitlab Trigger
+            /// variables:
+            /// - XCODE_CLOUD_WORKFLOW_ID
+            /// - XCODE_CLOUD_WORKFLOW_NAME
+            /// - Artifact (Adjustable based on Environment Variable)
+            let gitlabTriggerPayload = GitlabTriggerPayload(
+                variables: [
+                    "XCODE_CLOUD_WORKFLOW_ID": payload.ciWorkflow.id,
+                    "XCODE_CLOUD_WORKFLOW_NAME": payload.ciWorkflow.attributes.name,
+                    "XCODE_CLOUD_ARTIFACT": Environment.artifact
+                ],
+                token: Environment.gitLabToken,
+                ref: payload.scmGitReference.attributes.name
+            )
+            print("Gitlab Trigger Payload: \(gitlabTriggerPayload)")
+            
+            /// gitlab trigger pipeline response
+            let gitlabResponse = try await triggerGitlabPipeline(payload: gitlabTriggerPayload)
+            
+            return .init(statusCode: .ok, body: gitlabResponse)
         } catch DecodingError.keyNotFound(let key, let context) {
             let errorMessage = "Missing key '\(key.stringValue)' in \(context.codingPath.map { $0.stringValue }.joined(separator: " -> "))"
             print("Decoding error: \(errorMessage)")
@@ -59,5 +79,35 @@ struct CepuWebhook: SimpleLambdaHandler {
         - Progress: \(payload.ciBuildRun.attributes.executionProgress)
         - Author: \(payload.ciBuildRun.attributes.sourceCommit.author.displayName)
         """
+    }
+    
+    func triggerGitlabPipeline(payload: GitlabTriggerPayload) async throws -> String {
+        let httpClient = HTTPClient(eventLoopGroupProvider: .singleton)
+        defer { try? httpClient.syncShutdown() }
+        
+        let url = "\(Environment.gitLabApiUrl)/projects/\(Environment.gitLabProjectId)/trigger/pipeline"
+        print("Requesting URL: \(url)")
+        
+        var request = HTTPClientRequest(url: url)
+        request.method = .POST
+        
+        request.headers.add(name: "Content-Type", value: "application/json")
+        let jsonData = try JSONEncoder().encode(payload)
+        request.body = .bytes(jsonData)
+        
+        do {
+            let response = try await httpClient.execute(request, timeout: .seconds(30))
+            print("Response status: \(response.status)")
+            
+            guard response.status == .created else {
+                throw NSError(domain: "GitLabAPIError", code: Int(response.status.code), userInfo: [NSLocalizedDescriptionKey: "Failed to trigger GitLab CI job. Status: \(response.status)"])
+            }
+            
+            let bodyBytes = try await response.body.collect(upTo: 1024 * 1024)
+            return String(buffer: bodyBytes)
+        } catch {
+            print("Error: \(error)")
+            throw error
+        }
     }
 }
